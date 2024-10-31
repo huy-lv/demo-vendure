@@ -15,6 +15,8 @@ import { AssetServerPlugin } from "@vendure/asset-server-plugin";
 import { AdminUiPlugin } from "@vendure/admin-ui-plugin";
 import "dotenv/config";
 import path from "path";
+import { compileUiExtensions } from "@vendure/ui-devkit/compiler";
+import { AdminUiPlugiPlugin } from "./plugins/admin-ui-plugi/admin-ui-plugi.plugin";
 
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
@@ -105,11 +107,24 @@ export const config: VendureConfig = {
     AdminUiPlugin.init({
       route: "admin",
       port: serverPort + 2,
+      app: compileUiExtensions({
+        outputPath: path.join(__dirname, "../admin-ui"),
+        extensions: [
+          {
+            translations: {
+              vi: path.join(__dirname, "translations/vi.json"),
+            },
+          },
+          AdminUiPlugiPlugin.ui,
+        ],
+        devMode: true,
+      }),
       adminUiConfig: {
         apiPort: serverPort,
         defaultLanguage: LanguageCode.vi,
         availableLanguages: [LanguageCode.vi, LanguageCode.en],
       },
     }),
+    AdminUiPlugiPlugin.init({}),
   ],
 };
