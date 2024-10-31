@@ -17,6 +17,7 @@ import "dotenv/config";
 import path from "path";
 import { compileUiExtensions } from "@vendure/ui-devkit/compiler";
 import { AdminUiPlugiPlugin } from "./plugins/admin-ui-plugi/admin-ui-plugi.plugin";
+import { HardenPlugin } from "@vendure/harden-plugin";
 
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
@@ -117,7 +118,7 @@ export const config: VendureConfig = {
           },
           AdminUiPlugiPlugin.ui,
         ],
-        devMode: true,
+        devMode: IS_DEV,
       }),
       adminUiConfig: {
         apiPort: serverPort,
@@ -126,5 +127,9 @@ export const config: VendureConfig = {
       },
     }),
     AdminUiPlugiPlugin.init({}),
+    HardenPlugin.init({
+      maxQueryComplexity: 500,
+      apiMode: IS_DEV ? "dev" : "prod",
+    }),
   ],
 };
